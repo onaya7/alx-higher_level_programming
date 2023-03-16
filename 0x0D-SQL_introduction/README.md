@@ -92,7 +92,11 @@ $
 $ cat 0-list_databases.sql | mysql -uroot -p                               
 Database                                                                                   
 information_schema                                                                         
+<<<<<<< HEAD
 mysql                                                                                    
+=======
+mysql                                                                                      
+>>>>>>> 0649feeddd0f5756ba443f25945c629c539a39c9
 performance_schema                                                                         
 sys                      
 $
