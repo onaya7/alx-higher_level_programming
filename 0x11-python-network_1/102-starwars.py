@@ -1,23 +1,33 @@
 #!/usr/bin/python3
-"""Takes in a string and sends a search request to the Star Wars API"""
+"""Sends a search request for a given string to the Star Wars API.
+
+For each character matched, displays the associated list of movies.
+Mangages pagination to display all results.
+
+Usage: ./102-starwars.py <search string>
+  - The search request is sent to the Star Wars API search people endpoint.
+"""
+import sys
+import requests
+
 
 if __name__ == "__main__":
-    import requests
-    import sys
+    url = "https://swapi.co/api/people"
+    params = {"search": sys.argv[1]}
+    results = requests.get(url, params=params).json()
 
-    with requests.Session() as s:
-        r = s.get('https://swapi.co/api/people/?search={}'
-                  .format(sys.argv[1])).json()
-        print('Number of results: {}'.format(r.get('count')))
-        while True:
-            res = r.get('results')
-            for re in res:
-                print(re.get('name'))
-                films = re.get('films')
-                for film in films:
-                    f = s.get(film).json()
-                    print('\t{}'.format(f.get('title')))
-            if r.get('next') is None:
-                break
-            else:
-                r = s.get(r.get('next')).json()
+    count = results.get("count")
+    print("Number of results: {}".format(results.get("count")))
+
+    c = 0
+    while c < count:
+        for r in results.get("results"):
+            print(r.get("name"))
+            for link in r.get("films"):
+                film = requests.get(link).json()
+                print("\t{}".format(film.get("title")))
+            c += 1
+
+        next_page = results.get("next")
+        if next_page is not None:
+            results = requests.get(next_page).json()

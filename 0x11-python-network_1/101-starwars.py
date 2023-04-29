@@ -1,18 +1,29 @@
 #!/usr/bin/python3
-"""Takes in a string and sends a search request to the Star Wars API"""
+"""Sends a search request for a given string to the Star Wars API.
+
+Mangages pagination to display all results.
+
+Usage: ./101-starwars.py <search string>
+  - The search request is sent to the Star Wars API search people endpoint.
+"""
+import sys
+import requests
+
 
 if __name__ == "__main__":
-    import requests
-    import sys
+    url = "https://swapi.co/api/people"
+    params = {"search": sys.argv[1]}
+    results = requests.get(url, params=params).json()
 
-    r = requests.get('https://swapi.co/api/people/?search={}'
-                     .format(sys.argv[1])).json()
-    print('Number of results: {}'.format(r.get('count')))
-    while True:
-        res = r.get('results')
-        for re in res:
-            print(re.get('name'))
-        if r.get('next') is None:
-            break
-        else:
-            r = requests.get(r.get('next')).json()
+    count = results.get("count")
+    print("Number of results: {}".format(count))
+
+    c = 0
+    while c < count:
+        for r in results.get("results"):
+            print(r.get("name"))
+            c += 1
+
+        next_page = results.get("next")
+        if next_page is not None:
+            results = requests.get(next_page).json()
